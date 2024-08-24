@@ -70,4 +70,4 @@ midgame_position2 = {
     p.B_King   : 0b0000000000000000000000000000000000000000000000000000000000000001  # King has been castled queenside
 }
 
-#read_board(midgame_position)
+#read_board(midgame_position2)

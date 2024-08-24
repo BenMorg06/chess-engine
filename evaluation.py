@@ -61,43 +61,64 @@ class Board:
                 for i in find_all_set_bits(self.position[piece]):
                     score -= piece.pst_adjustment[i - 1]
         return score
-    
+
     def find_legal_move(self):
         # Find all possible legal moves for a piece
         position = copy.deepcopy(self.position)
         for piece in self.position:
-            if piece.colour == 'white':
+            if piece.colour == "white":
                 while position[piece]:
                     square = position[piece].bit_length() - 1
-                    position[piece] ^= (1 << square)  # Remove the piece from the bitboard
-                    
-                    #print('{0:064b}'.format(self.position[piece])[square])
+                    position[piece] ^= 1 << square  # Remove the piece from the bitboard
+
+                    # print('{0:064b}'.format(self.position[piece])[square])
                     self.find_piece_moves(square, piece)
 
-    def find_piece_moves(self,square, piece):
+    def find_piece_moves(self, square, piece):
         moves = []
-        black_position = self.position[p.B_Pawns]+self.position[p.B_Rooks]+self.position[p.B_Bishops]+self.position[p.B_Queens]+self.position[p.B_Knights]+self.position[p.B_King]
-        white_position = self.position[p.W_Pawns]+self.position[p.W_Rooks]+self.position[p.W_Knights]+self.position[p.W_Queens]+self.position[p.W_Bishops]+self.position[p.W_King]
-        #print('{0:064b}'.format(self.position[piece]))
+        legal_moves = []
+        black_position = (
+            self.position[p.B_Pawns]
+            + self.position[p.B_Rooks]
+            + self.position[p.B_Bishops]
+            + self.position[p.B_Queens]
+            + self.position[p.B_Knights]
+            + self.position[p.B_King]
+        )
+        white_position = (
+            self.position[p.W_Pawns]
+            + self.position[p.W_Rooks]
+            + self.position[p.W_Knights]
+            + self.position[p.W_Queens]
+            + self.position[p.W_Bishops]
+            + self.position[p.W_King]
+        )
+        print('\n'+'{0:064b}'.format(self.position[piece]))
         solo_piece = 2**square
-        #print(solo)
+        print('{0:064b}'.format(solo_piece))
         for move in piece.moves:
-            self.shift(move,solo_piece)
+            self.shift(move, solo_piece)
             moves.append(move)
             
-        print(moves)
+        # does not allow advanced pawns to move 2 squares
+        if piece == p.W_Pawns or piece == p.B_Pawns:
+            if solo_piece > 2**16:
+                moves.remove(16)
+        
+        for move in moves:
+            #shift piece by move increment and check if any collision on the board (either disallow move or take colliding piece)
+            #then check if it puts the king in check 
+            new_solo_piece = self.shift(move, solo_piece) # stores new location of the solo piece after it has been moved
+            print('{0:064b}'.format(new_solo_piece))
 
-    
-
-    def shift(self,direction, piece):
+    def shift(self, direction, piece):
         if direction < 1:
             return piece >> abs(direction)
         if direction >= 1:
             return piece << abs(direction)
 
+
 board = Board(exp.midgame_position2)
 manatee = ChessEngine(board)
-#print(manatee.evaluate_position())
+# print(manatee.evaluate_position())
 board.find_legal_move()
-
-
