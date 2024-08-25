@@ -7,6 +7,29 @@ def read_board(boards):
     for i in range(8):
         print(board[8*i:8*i+8])
 
+def bitboard_to_chess_position(bitboards):
+    # Initialize an empty 8x8 chess board
+    board = [['.' for _ in range(8)] for _ in range(8)]
+    
+    # Map each piece to its corresponding letter
+    piece_map = {
+        p.W_Pawns: 'P', p.W_Rooks: 'R', p.W_Knights: 'N', p.W_Bishops: 'B', p.W_Queens: 'Q', p.W_King: 'K',
+        p.B_Pawns: 'p', p.B_Rooks: 'r', p.B_Knights: 'n', p.B_Bishops: 'b', p.B_Queens: 'q', p.B_King: 'k'
+    }
+
+    # Iterate over the bitboards and update the board
+    for piece, bitboard in bitboards.items():
+        piece_char = piece_map[piece]
+        for i in range(64):
+            if bitboard & (1 << i):
+                row = 7 - (i // 8)
+                col = i % 8
+                board[row][col] = piece_char
+
+    # Convert the board to a string format
+    board_str = '\n'.join([''.join(row) for row in board])
+    print(board_str)
+
 starting_position = {
                     p.W_Pawns  : 0b0000000000000000000000000000000000000000000000001111111100000000,
                     p.W_Rooks  : 0b0000000000000000000000000000000000000000000000000000000010000001,
@@ -63,11 +86,11 @@ midgame_position2 = {
 
     # Black pieces
     p.B_Pawns  : 0b0000000000000100010000000000000000000000000000000000000000000000, # Pawns are well-positioned, advancing on the queenside
-    p.B_Rooks  : 0b0000000000000000000000000000000000000000000000000000000000001000, # One rook on the h3
+    p.B_Rooks  : 0b1000000000000000000000000000000000000000000000000000000000000000, # One rook on the h3
     p.B_Knights: 0b0000000000000000000000000000000000000000000000000000000000000000, # Both knights have been captured
     p.B_Bishops: 0b0010010000000000000000000000000000000000000000000000000000000000, # Both bishops active on their respective diagonals
     p.B_Queens : 0b0000000000000000000000000000000000000000000000000001000000000000, # Queen is advanced on the queenside
     p.B_King   : 0b0000000000000000000000000000000000000000000000000000000000000001  # King has been castled queenside
 }
 
-#read_board(midgame_position2)
+bitboard_to_chess_position(midgame_position2)
