@@ -110,14 +110,17 @@ class Board:
             #shift piece by move increment and check if any collision on the board (either disallow move or take colliding piece)
             #then check if it puts the king in check 
             new_solo_piece = self.shift(move, solo_piece) # stores new location of the solo piece after it has been moved
+
             # check if new piece moves to a space occupied by another piece of the same colour
             if find_all_set_bits(new_solo_piece) in (find_all_set_bits(black_position) if piece.colour == "black" else find_all_set_bits(white_position)):
                 # If there is a collision, remove the move
                 moves.remove(move)
+
             # if piece moves into a space occupied by the opposing king, it cannot move there
             if new_solo_piece == (self.position[p.B_King]if piece.colour == 'white' else self.position[p.W_king]):
                 moves.remove(move)
             
+            # checks if a pawn can move diagonally to take a piece of the opposite colour
             if piece == p.W_Pawns or piece == p.W_Pawns:
                 if find_all_set_bits(new_solo_piece) not in (find_all_set_bits(black_position) if piece.colour == "white" else find_all_set_bits(white_position)):
                     if move != N:
